@@ -1,3 +1,7 @@
+let userController = new UserController("form-user-create", "table-users");
+
+userController.onSubmit();
+
 //var name = document.querySelector("#exampleInputName");
 //var gender = document.querySelectorAll("#example-user-create [name=gender]:checked");
 //var birth = document.querySelector("#exampleInputBirth");
