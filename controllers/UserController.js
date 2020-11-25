@@ -2,7 +2,7 @@ class UserController {
 
     constructor(formId, tableId){
         this.formEl = document.getElementById(formId);
-        this.formEl = document.getElementById(tableId);
+        this.tableEL = document.getElementById(tableId);
 
         this.onSubmit();
 
@@ -14,9 +14,8 @@ class UserController {
 
         event.preventDefault();
         //Nessa classe que eu to, quero acessar o método getValues
-        let user = this.getValues()
 
-        this.addLine(user);
+        this.addLine(this.getValues());
 
       });
 
@@ -26,9 +25,9 @@ class UserController {
     getValues(){
 
     //let é uma variavel que só existe dentro do getvalues
-    let user = {}
-
-    this.formEl.elements.forEach(function(field, index){
+    let user = {};
+    //spread é um operador que serve pra distribuir os indices sem precisar colocar todos.
+    [...this.formEl.elements].forEach(function(field, index){
 
         if (field.name == "gender") {
     
@@ -37,7 +36,9 @@ class UserController {
           }
     
         } else {
+
           user[field.name] = field.value;
+
         }
     
       });
