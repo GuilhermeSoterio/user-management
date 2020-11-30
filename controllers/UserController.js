@@ -14,15 +14,24 @@ class UserController {
 
       event.preventDefault();
       //Nessa classe que eu to, quero acessar o método getValues
-
+      let btn = this.formEl.querySelector("[type=submit]")
+      
+      btn.disabled = true;
+      
       let values = this.getValues();
+
+      if (!values) return false;
 
       this.getPhoto().then(
         (content)=>{
+
           values.photo = content;
 
           this.addLine(values);
 
+          this.formEl.reset();
+
+          btn.disabled = false;
         }, 
         (e)=>{
           console.error(e);
@@ -60,7 +69,13 @@ class UserController {
 
     };
 
-    fileReader.readAsDataURL(file);
+    if (file) {
+      fileReader.readAsDataURL(file);
+    }
+    else{
+      resolve('dist/img/boxed-bg.jpg');
+    }
+
   });
 
 }
@@ -69,8 +84,16 @@ class UserController {
 
   //let é uma variavel que só existe dentro do getvalues
   let user = {};
+  let isValid = true;  
   //spread é um operador que serve pra distribuir os indices sem precisar colocar todos.
   [...this.formEl.elements].forEach(function(field, index){
+
+    if (['name', 'email', 'password'].indexOf(field.name) > -1 && !field.value){
+
+      field.parentElement.classList.add('has-error');
+      isValid = false;
+
+    }
 
       if (field.name == "gender") {
   
@@ -78,13 +101,21 @@ class UserController {
           user[field.name] = field.value;
         }
   
-      } else {
+      } else if (field.name == "admin"){
+      
+        user[field.name] = field.checked;
+   
+      }else {
 
         user[field.name] = field.value;
 
       }
   
     });
+//---------------Validação de formulário--------------------
+    if (!isValid){
+      return false;
+    }
   //Criando um objeto da classe usuário, com a variavel objectUser
   //Esse é uma forma reduzida de instanciar um objeto
     return new User(
@@ -104,22 +135,47 @@ class UserController {
 
   
     //document.getElementById("table-users").innerHTML
-    this.tableEl.innerHTML = `
+    let tr = document.createElement('tr');
+
+    tr.dataset.user = JSON.stringify(dataUser);
+
+    tr.innerHTML = `
             <tr>
               <td>
                 <img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm">
               </td>
               <td>${dataUser.name}</td>
               <td>${dataUser.email}</td>
-              <td>${dataUser.admin}</td>
-              <td>${dataUser.birth}</td>
+              <td>${(dataUser.admin) ? 'Sim' : 'Não'}</td>
+              <td>${Utils.dateFormat(dataUser.register)}</td>
               <td>
                 <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
                 <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
               </td>
             </tr>
-    `;
+        `;
   
+        this.tableEl.appendChild(tr);
 
-  }
+        this.updateCount();
+
+    }
+
+    updateCount(){
+
+      let numberUsers = 0;
+      let numberAdmin = 0;
+
+      [...this.tableEl.children].forEach(tr=>{
+
+        numberUsers++;
+
+        let user = JSON.parse(tr.dataset.user);
+
+        if (user._admin) numberAdmin++;
+      });
+
+      document.querySelector('#number-users').innerHTML = numberUsers;
+      document.querySelector('#number-users-admin').innerHTML = numberAdmin;
+    }
 }
