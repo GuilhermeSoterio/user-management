@@ -166,9 +166,25 @@ class UserController {
   
         tr.querySelector(".btn-edit").addEventListener("click", e=>{
 
-          console.log(JSON.parse(tr.dataset.user));
-          document.querySelector("#box-user-create").style.display = "none";
-          document.querySelector("#box-user-update").style.display = "block";
+          let json = JSON.parse(tr.dataset.user);
+          let form = document.querySelector("#form-user-update")
+          
+          for (let name in json){
+
+            let field = form.querySelector("[name="+ name.replace("_", "") + "]");
+            
+            console.log(name, field);
+
+
+            if(field){
+              if (field.type == 'file') continue;
+
+              field.value = json[name];
+
+            }
+          }
+
+          this.showPanelUpdate();
 
         });
 
